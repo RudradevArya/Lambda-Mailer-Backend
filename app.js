@@ -24,6 +24,7 @@ app.post('/api/send-emails', upload.single('file'), async (req, res) => {
       console.log('No file uploaded.');
       return res.status(400).send('No file uploaded.');
     }
+    const emailTemplate = req.body.emailTemplate; //exract email tempplate from request body from fornt end
 
     console.log('Uploaded file:', req.file);
 
@@ -50,30 +51,50 @@ app.post('/api/send-emails', upload.single('file'), async (req, res) => {
 
     fileStream
       .pipe(csv())
-      .on('data', (data) => {
+      .on('data', async (data) => {
         try {
           console.log('CSV data:', data);
 
-          const { email, name } = data;
+          // const { email } = data;
+          if (!data.Email || data.Email.trim() === '') {
+            console.log('Skipping row with missing or empty email:', data);
+            return;
+          }
+          
+          let message = req.body.customMessage;
+
+          // let personalizedTemplate = emailTemplate;
+          for (const column in data) {
+            const placeholder = `${column}`;
+            const value = data[column];
+            // personalizedTemplate = personalizedTemplate.replace(placeholder, value);
+            message = message.replace(new RegExp(placeholder, 'g'), value);
+          }
+          // const { email, name } = data;
+
+
           const emailParams = {
             Destination: {
-              ToAddresses: [email],
+              ToAddresses: [data.Email],
             },
             Message: {
               Body: {
                 Text: {
-                  Data: `${req.body.customMessage}\n\nRegards,\nYour App`,
+                  // Data: `${req.body.customMessage}\n\nRegards,\nYour App`,
+                  // Data: personalizedTemplate,
+                  Data: `${message}\n\nRegards,\nSent Through Lambda Mailer`,
                 },
               },
               Subject: {
-                Data: 'Your Custom Email Subject',
+                Data: 'Greeting Topprzzz!!',
               },
             },
             Source: 'fringe.xb6783746@gmail.com',
           };
           console.log('Email params:', emailParams);
 
-          ses.sendEmail(emailParams).promise();
+          await ses.sendEmail(emailParams).promise();
+          console.log('Email sent successfully');
         } catch (error) {
           console.error('Error sending email:', error);
         }
@@ -90,5 +111,3 @@ app.post('/api/send-emails', upload.single('file'), async (req, res) => {
   });
 
 module.exports = app;
-
-
