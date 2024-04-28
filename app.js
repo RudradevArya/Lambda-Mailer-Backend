@@ -13,8 +13,8 @@ const csv = require('csv-parser');
 
 const { google } = require('googleapis');
 const oauth2Client = new google.auth.OAuth2(
-  '647829566826-qtt6u1lf2de94l3a5k4lgpmuo2b2go3b.apps.googleusercontent.com', //client id
-  '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', //secret
+  GOOGLE_CLIENT_ID, //client id
+  GOOGLE_CLIENT_SECRET, //secret
   'http://localhost:3001/api/google-callback'
 );
 
@@ -25,7 +25,7 @@ const upload = multer({ storage: multer.memoryStorage() });
 app.use(session({
   // secret: secretKey,
   // secret: process.env.SESSION_SECRET,
-  secret: 'fovetuantytuan',
+  secret: SESSION_SECRET,
   resave: false,
   saveUninitialized: true,
   cookie: {
