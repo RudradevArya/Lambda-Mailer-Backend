@@ -25,6 +25,7 @@ app.post('/api/send-emails', upload.single('file'), async (req, res) => {
       return res.status(400).send('No file uploaded.');
     }
     const emailTemplate = req.body.emailTemplate; //exract email tempplate from request body from fornt end
+    const customSubject = req.body.customSubject; // Extract custom subject
 
     console.log('Uploaded file:', req.file);
 
@@ -61,14 +62,16 @@ app.post('/api/send-emails', upload.single('file'), async (req, res) => {
             return;
           }
           
+          let subject = customSubject;
           let message = req.body.customMessage;
 
           // let personalizedTemplate = emailTemplate;
           for (const column in data) {
-            const placeholder = `${column}`;
+            const placeholder = `{{${column}}}`;
             const value = data[column];
             // personalizedTemplate = personalizedTemplate.replace(placeholder, value);
             message = message.replace(new RegExp(placeholder, 'g'), value);
+            subject = subject.replace(new RegExp(placeholder, 'g'), value);
           }
           // const { email, name } = data;
 
@@ -86,7 +89,7 @@ app.post('/api/send-emails', upload.single('file'), async (req, res) => {
                 },
               },
               Subject: {
-                Data: 'Greeting Topprzzz!!',
+                Data: subject,
               },
             },
             Source: 'fringe.xb6783746@gmail.com',
