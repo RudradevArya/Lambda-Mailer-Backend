@@ -1,6 +1,8 @@
 const express = require('express');
 const session = require('express-session');
 
+require('dotenv').config();
+
 // const crypto = require('crypto');
 // const secretKey = crypto.randomBytes(32).toString('hex');
 
@@ -13,8 +15,8 @@ const csv = require('csv-parser');
 
 const { google } = require('googleapis');
 const oauth2Client = new google.auth.OAuth2(
-  GOOGLE_CLIENT_ID, //client id
-  GOOGLE_CLIENT_SECRET, //secret
+  process.env.GOOGLE_CLIENT_ID, //client id
+  process.env.GOOGLE_CLIENT_SECRET, //secret
   'http://localhost:3001/api/google-callback'
 );
 
@@ -25,7 +27,7 @@ const upload = multer({ storage: multer.memoryStorage() });
 app.use(session({
   // secret: secretKey,
   // secret: process.env.SESSION_SECRET,
-  secret: SESSION_SECRET,
+  secret: process.env.SESSION_SECRET,
   resave: false,
   saveUninitialized: true,
   cookie: {
